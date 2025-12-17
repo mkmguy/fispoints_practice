@@ -297,6 +297,13 @@ def to_scalar(x):
         return x[0] if len(x) == 1 else np.nan
     return x
 
+def format_m_ss_ms(seconds: float) -> str:
+    if seconds is None or pd.isna(seconds):
+        return ""
+    m = int(seconds // 60)
+    s = seconds - m * 60
+    return f"{m}:{s:05.2f}"  # e.g., 1:02.34
+
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def retrieve_fispoints(fis_id: int, discipline: str) -> Optional[float]:
@@ -541,6 +548,10 @@ if run:
         m2.metric("Clamped penalty", f"{penalty:.2f}")
         m3.metric("Winner time (s)", f"{winners_time:.2f}")
         m4.metric("Points per second", f"{pps:.4f}")
+
+        scored_display = scored.copy()
+        scored_display["final_time"] = scored_display["final_time"].apply(format_m_ss_ms)
+        st.dataframe(scored_display, use_container_width=True, hide_index=True)
 
         st.subheader("Final Scores")
         st.dataframe(scored, use_container_width=True, hide_index=True)
