@@ -549,12 +549,10 @@ if run:
         m3.metric("Winner time (s)", f"{winners_time:.2f}")
         m4.metric("Points per second", f"{pps:.4f}")
 
+        st.subheader("Final Scores")
         scored_display = scored.copy()
         scored_display["final_time"] = scored_display["final_time"].apply(format_m_ss_ms)
         st.dataframe(scored_display, use_container_width=True, hide_index=True)
-
-        st.subheader("Final Scores")
-        st.dataframe(scored, use_container_width=True, hide_index=True)
 
         csv = scored.to_csv(index=False).encode("utf-8")
         st.download_button(
