@@ -552,7 +552,7 @@ if run:
         st.subheader("Final Scores")
         scored_display = scored.copy()
         scored_display["final_time"] = scored_display["final_time"].apply(format_m_ss_ms)
-        scored_display.drop(columns=["race_points", "finish"], inplace = True)
+        scored_display.drop(columns=["race_points", "finish", "id"], inplace = True)
         st.dataframe(scored_display, use_container_width=True, hide_index=True)
 
         csv = scored.to_csv(index=False).encode("utf-8")
