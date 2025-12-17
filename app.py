@@ -526,9 +526,6 @@ if run:
             startlist = output["startlist"]
             df_points = output["df_points"]
 
-        st.subheader("Leaderboard / Race Points")
-        st.dataframe(df_points, use_container_width=True, hide_index=True)
-
         with st.spinner("Computing penalty and final scores (includes athlete FIS points lookups)..."):
             raw_penalty, penalty, winners_time, pps, scored = compute_penalty_and_scores(
                 df_points=df_points,
