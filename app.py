@@ -443,7 +443,10 @@ def compute_penalty_and_scores(
     pps = float(F) / winners_time
 
     scored = df_points.copy()
-    scored["score"] = (penalty + scored["gap"] * pps).round(2)
+    
+    scored["gap"] = pd.to_numeric(scored["gap"], errors="coerce").astype("float64")
+
+    scored["score"] = np.where(scored["gap"] == None, None, (penalty + scored["gap"] * pps).round(2))
 
     return raw_penalty, penalty, winners_time, pps, scored
 
