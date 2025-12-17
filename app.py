@@ -483,7 +483,7 @@ st.dataframe(events_df, use_container_width=True, hide_index=True)
 
 # Event selection
 def event_label(row: pd.Series) -> str:
-    return f"[{row.get('codex', '')}] {row.get('date', '')} | {row.get('location', '')} | {row.get('discipline', '')} | {row.get('category', '')} | {row.get('result_status', '')}"
+    return f"{row.get('date', '')} | {row.get('location', '')} | {row.get('gender', '')} | {row.get('discipline', '')} | {row.get('category', '')} | {row.get('result_status', '')}"
 
 labels = [event_label(events_df.iloc[i]) for i in range(len(events_df))]
 selected_label = st.selectbox("Select an event", labels, index=0)
