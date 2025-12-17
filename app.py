@@ -546,7 +546,7 @@ if run:
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Raw penalty", f"{raw_penalty:.2f}")
         m2.metric("Clamped penalty", f"{penalty:.2f}")
-        m3.metric("Winner time (s)", f"{format_m_ss_ms(winners_time)}")
+        m3.metric("Winner time", f"{format_m_ss_ms(winners_time)}")
         m4.metric("Points per second", f"{pps:.4f}")
 
         st.subheader("Final Scores")
