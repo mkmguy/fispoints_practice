@@ -224,15 +224,60 @@ def extract_race_data(data, discipline: str, F: float) -> Dict[str, pd.DataFrame
     if discipline in ["Downhill", "Super G"]:
         df_run_1 = df_startlist_1.join(df_results_1).merge(df_racers, on="id", how="left")
         df_run_1["run_1_time"] = np.where(df_run_1["finish"] == "finish", df_run_1["run_1_time"], None)
+        
+        if not t_startlist_run_2:
+            leaderboard = df_run_1.sort_values(by="run_1_time")
+            leaderboard["run_1_time"] = leaderboard["run_1_time"]/1000
+            leaderboard["gap"] = leaderboard["run_1_time"] - leaderboard.iloc[0,4]
 
-        leaderboard = df_run_1.sort_values(by="run_1_time")
-        leaderboard["run_1_time"] = leaderboard["run_1_time"] / 1000
-        leaderboard["gap"] = leaderboard["run_1_time"] - leaderboard.iloc[0, 4]
-        leaderboard["race_points"] = ((leaderboard["run_1_time"] / leaderboard.iloc[0, 4]) - 1) * F
-        leaderboard["final_time"] = leaderboard["run_1_time"]
+            leaderboard["race_points"] = ((leaderboard["run_1_time"]/leaderboard.iloc[0,4]) - 1) * F
+            leaderboard["final_time"] = leaderboard["run_1_time"]
+            df_points = leaderboard[["id", "bib", "nation", "first_name", "last_name", "finish", "final_time", "gap", "race_points" ]]
+            df_points = df_points.reset_index(drop=True)
+        else: 
+            if t_results_total:
+                df_run_2 = df_startlist_2.join(df_results_total).merge(df_racers, on="id", how="left")
 
-        df_points = leaderboard[["id", "bib", "nation", "first_name", "last_name", "finish",
-                                 "final_time", "gap", "race_points"]].reset_index(drop=True)
+                final_result_df = df_run_1.merge(df_run_2, on=["id", "first_name", "last_name", "nation", "bib"], how="left").drop(columns=["3_x", "4_x", "5_x", "6_x", "3_y", "4_y", "5_y", "6_y"])
+
+                final_result_df["run_2_time"] = final_result_df["combined_time"] - final_result_df["run_1_time"]
+
+                leaderboard = final_result_df.sort_values(by="combined_time")
+                leaderboard["combined_time"] = leaderboard["combined_time"]/1000
+                leaderboard["gap"] = round(leaderboard["combined_time"] - leaderboard.iloc[0,8], 2)
+                leaderboard["race_points"] = ((leaderboard["combined_time"]/leaderboard.iloc[0,8]) - 1) * F
+                leaderboard["final_time"] = leaderboard["combined_time"]
+
+                conditions = [
+                    (leaderboard["finish_x"] == "finish") & (leaderboard["finish_y"] == "finish"),
+                    leaderboard["finish_x"] == "dnf",
+                    leaderboard["finish_y"] == "dnf"
+                ]
+                results = [
+                    "finish",
+                    "dnf1",
+                    "dnf2"
+                ]
+                leaderboard["finish"] = np.select(conditions, results, default = None) 
+
+                df_points = leaderboard[["id", "bib", "nation", "first_name", "last_name", "finish", "final_time", "gap", "race_points" ]]
+                df_points = df_points.reset_index(drop=True)
+            else: 
+                print("run 2 has not started yet - duplicating run 2 results...")
+
+                df_run_1 = df_startlist_1.join(df_results_1).merge(df_racers, on="id", how="left")
+                df_run_1["run_1_time"] = np.where(df_run_1["finish"] == "finish", df_run_1["run_1_time"], None )
+
+                leaderboard = df_run_1.sort_values(by="run_1_time")
+                leaderboard["run_1_time"] = leaderboard["run_1_time"]/1000
+                leaderboard["gap"] = leaderboard["run_1_time"] - leaderboard.iloc[0,4]
+
+                leaderboard["race_points"] = ((leaderboard["run_1_time"]/leaderboard.iloc[0,4]) - 1) * F
+                leaderboard["final_time"] = leaderboard["run_1_time"]*2
+                leaderboard["gap"] = leaderboard["gap"] * 2
+                df_points = leaderboard[["id", "bib", "nation", "first_name", "last_name", "finish", "final_time", "gap", "race_points" ]]
+                df_points = df_points.reset_index(drop=True)    
+                
 
     elif discipline in ["Giant Slalom", "Slalom"]:
         if t_results_total is not None and df_results_total is not None and df_startlist_2 is not None:
